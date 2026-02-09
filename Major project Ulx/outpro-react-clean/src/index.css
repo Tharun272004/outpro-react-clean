@@ -1,0 +1,225 @@
+:root {
+  --bg-color: #f0f4f8;
+  --text-color: #0a2540;
+  --card-bg: #f5f7fa;
+  --nav-bg: #0a2540;
+  --accent-color: #5ea9ff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0b1120;
+  --text-color: #e5e7eb;
+  --card-bg: #111827;
+  --nav-bg: #020617;
+  --accent-color: #38bdf8;
+}
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body Styles */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Lists */
+ul {
+  list-style: none;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+p {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  border: none;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Code (optional – keep if needed) */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Forms */
+input,
+textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #5ea9ff;
+}
+
+button.primary-btn {
+  background-color: #0a2540;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button.primary-btn:hover {
+  background-color: #084070;
+}
+
+button.primary-btn:active {
+  background-color: #062d4a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.service-card,
+.portfolio-card,
+.testimonial-card {
+  transition: all 0.3s ease;
+}
+
+.service-card:hover,
+.portfolio-card:hover,
+.testimonial-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Additional global styles can be added here */
+/* CTA Section */
+.cta {
+  padding: 80px 20px;
+  background-color: #f5f7fa;
+  text-align: center;
+}
+.cta h2 {
+  font-size: 36px;
+  color: #0a2540;
+  margin-bottom: 15px;
+}
+.cta p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 30px;
+}
+.cta-btn {
+  background-color: #0a2540;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.cta-btn:hover {
+  background-color: #08305a;
+}
+.hero-btn,
+.cta-btn {
+  transition: all 0.3s ease;
+}
+.hero-btn:hover,
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+.metric-box h3 {
+  transition: transform 0.3s ease;
+}
+.metric-box:hover h3 {
+  transform: scale(1.1);
+}
+.fade-in {
+  opacity: 0;
+  animation: fadeInAnimation 1s forwards;
+}
+@keyframes fadeInAnimation {
+  to {
+    opacity: 1;
+  }
+}
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.scroll-animate.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
