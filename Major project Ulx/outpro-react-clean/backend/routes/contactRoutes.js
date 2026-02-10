@@ -119,4 +119,52 @@ router.patch("/status/:id", protectAdmin, async (req, res) => {
   }
 });
 
+// ADMIN: edit full contact (EDIT BUTTON)
+router.put("/:id", protectAdmin, async (req, res) => {
+  try {
+    const { name, email, phone, service, message, status } = req.body;
+
+    // basic validation
+    if (!name || !email || !phone || !service || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const updatedContact = await Contact.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        service: service.trim(),
+        message: message.trim(),
+        status: status || "Pending",
+      },
+      { new: true }
+    );
+
+    if (!updatedContact) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Message updated successfully",
+      data: updatedContact,
+    });
+  } catch (error) {
+    console.error("Edit error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update message",
+    });
+  }
+});
+
+
 module.exports = router;
