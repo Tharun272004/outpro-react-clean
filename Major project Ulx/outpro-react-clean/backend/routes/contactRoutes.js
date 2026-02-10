@@ -29,13 +29,14 @@ router.post("/send-message", async (req, res) => {
 
     // DUPLICATE CHECK (IMPORTANT)
     // same email + phone + service + message = duplicate
-    const existingContact = await Contact.findOne({
-      email,
-      phone,
-      service,
-      message,
+   const existingContact = await Contact.findOne({
+     name: name.trim(),
+     email: email.trim().toLowerCase(),
+     phone: phone.trim(),
+     service: service.trim(),
+     message: message.trim(),
     });
-
+    
     if (existingContact) {
       return res.status(409).json({
         success: false,
@@ -46,13 +47,13 @@ router.post("/send-message", async (req, res) => {
 
     // Save new contact
     const newContact = new Contact({
-      name,
-      email,
-      phone,
-      service,
-      message,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone.trim(),
+      service: service.trim(),
+      message: message.trim(),
       status: "Pending",
-    });
+     });
 
     await newContact.save();
 
