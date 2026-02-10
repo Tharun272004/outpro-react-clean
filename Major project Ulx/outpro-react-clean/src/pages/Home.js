@@ -88,9 +88,7 @@ function Home() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/contact`,
-        {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/contact/send-message`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
