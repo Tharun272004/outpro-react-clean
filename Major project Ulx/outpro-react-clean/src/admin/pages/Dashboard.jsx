@@ -5,9 +5,19 @@ const Dashboard = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem("adminToken");
+
   const fetchContacts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/contact");
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/contact`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const data = await res.json();
       setContacts(data);
     } catch {
@@ -20,11 +30,40 @@ const Dashboard = () => {
   const deleteContact = async (id) => {
     if (!window.confirm("Delete this message?")) return;
 
-    await fetch(`http://localhost:5000/api/contact/${id}`, {
-      method: "DELETE",
-    });
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/api/contact/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     setContacts((prev) => prev.filter((c) => c._id !== id));
+  };
+
+  const updateStatus = async (id, currentStatus) => {
+    const newStatus =
+      currentStatus === "Pending" ? "Completed" : "Pending";
+
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/api/contact/status/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      }
+    );
+
+    setContacts((prev) =>
+      prev.map((c) =>
+        c._id === id ? { ...c, status: newStatus } : c
+      )
+    );
   };
 
   const handleLogout = () => {
@@ -36,34 +75,13 @@ const Dashboard = () => {
     fetchContacts();
   }, []);
 
-  const updateStatus = async (id, currentStatus) => {
-    const newStatus =
-      currentStatus === "Pending" ? "Completed" : "Pending";
-
-    await fetch(`http://localhost:5000/api/contact/status/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: newStatus }),
-    });
-
-    setContacts((prev) =>
-      prev.map((c) =>
-        c._id === id ? { ...c, status: newStatus } : c
-      )
-    );
-  };
-
   return (
     <div className="admin-dashboard">
-      {/* HEADER */}
       <div className="admin-header">
         <h2>Admin Dashboard</h2>
         <button onClick={handleLogout}>Logout</button>
       </div>
 
-      {/* CARD */}
       <div className="admin-card">
         <h3>Contact Messages</h3>
 
@@ -93,7 +111,6 @@ const Dashboard = () => {
                   <td>{c.service}</td>
                   <td className="message-cell">{c.message}</td>
 
-                  {/* STATUS */}
                   <td>
                     <span
                       className={
@@ -106,14 +123,20 @@ const Dashboard = () => {
                     </span>
                   </td>
 
-                  <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </td>
 
                   <td>
                     <button
                       className="status-btn"
-                      onClick={() => updateStatus(c._id, c.status)}
+                      onClick={() =>
+                        updateStatus(c._id, c.status)
+                      }
                     >
-                      {c.status === "Pending" ? "Mark Completed" : "Mark Pending"}
+                      {c.status === "Pending"
+                        ? "Mark Completed"
+                        : "Mark Pending"}
                     </button>
 
                     <button
