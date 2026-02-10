@@ -6,6 +6,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("adminToken");
+  const [editingContact, setEditingContact] = useState(null);
 
   // ---------------------------
   // Fetch all contact messages
@@ -114,6 +115,49 @@ const Dashboard = () => {
     }
   };
 
+  //----------------------
+  /* ================= EDIT ================= */
+    const openEditModal = (contact) => {
+    setEditingContact({ ...contact });
+  };
+
+  const handleEditChange = (e) => {
+    setEditingContact({
+      ...editingContact,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const saveEdit = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/contact/${editingContact._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editingContact),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      const updated = await res.json();
+
+      setContacts((prev) =>
+        prev.map((c) =>
+          c._id === editingContact._id ? updated.data : c
+        )
+      );
+
+      setEditingContact(null);
+    } catch {
+      alert("Update failed");
+    }
+  };
+
   // ---------------------------
   // Logout
   // ---------------------------
@@ -218,5 +262,45 @@ const Dashboard = () => {
     </div>
   );
 };
+{editingContact && (
+  <div className="edit-modal">
+    <div className="edit-card">
+      <h3>Edit Message</h3>
+
+      <input
+        name="name"
+        value={editingContact.name}
+        onChange={handleEditChange}
+      />
+      <input
+        name="email"
+        value={editingContact.email}
+        onChange={handleEditChange}
+      />
+      <input
+        name="phone"
+        value={editingContact.phone}
+        onChange={handleEditChange}
+      />
+      <input
+        name="service"
+        value={editingContact.service}
+        onChange={handleEditChange}
+      />
+      <textarea
+        name="message"
+        value={editingContact.message}
+        onChange={handleEditChange}
+      />
+
+      <div className="edit-actions">
+        <button onClick={saveEdit}>Save</button>
+        <button onClick={() => setEditingContact(null)}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 export default Dashboard;
