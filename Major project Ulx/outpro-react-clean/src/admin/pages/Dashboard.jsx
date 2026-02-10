@@ -4,13 +4,11 @@ import "../admin.css";
 const Dashboard = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const token = localStorage.getItem("adminToken");
   const [editingContact, setEditingContact] = useState(null);
 
-  // ---------------------------
-  // Fetch all contact messages
-  // ---------------------------
+  const token = localStorage.getItem("adminToken");
+
+  /* ================= FETCH CONTACTS ================= */
   const fetchContacts = async () => {
     try {
       const res = await fetch(
@@ -22,7 +20,6 @@ const Dashboard = () => {
         }
       );
 
-      // 🔒 Token expired / invalid
       if (res.status === 401) {
         alert("Session expired. Please login again.");
         localStorage.removeItem("adminToken");
@@ -31,29 +28,22 @@ const Dashboard = () => {
       }
 
       const data = await res.json();
-
-      // 🛡 Safety check
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid response format");
-      }
+      if (!Array.isArray(data)) throw new Error("Invalid response");
 
       setContacts(data);
     } catch (error) {
-      console.error("Fetch contacts error:", error);
       alert("Failed to load messages");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------------------
-  // Delete a message
-  // ---------------------------
+  /* ================= DELETE ================= */
   const deleteContact = async (id) => {
     if (!window.confirm("Delete this message?")) return;
 
     try {
-      const res = await fetch(
+      await fetch(
         `${process.env.REACT_APP_API_URL}/api/contact/${id}`,
         {
           method: "DELETE",
@@ -63,29 +53,19 @@ const Dashboard = () => {
         }
       );
 
-      if (res.status === 401) {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("adminToken");
-        window.location.href = "/admin/login";
-        return;
-      }
-
       setContacts((prev) => prev.filter((c) => c._id !== id));
-    } catch (error) {
-      console.error("Delete error:", error);
+    } catch {
       alert("Delete failed");
     }
   };
 
-  // ---------------------------
-  // Update status
-  // ---------------------------
+  /* ================= STATUS TOGGLE ================= */
   const updateStatus = async (id, currentStatus) => {
     const newStatus =
       currentStatus === "Pending" ? "Completed" : "Pending";
 
     try {
-      const res = await fetch(
+      await fetch(
         `${process.env.REACT_APP_API_URL}/api/contact/status/${id}`,
         {
           method: "PATCH",
@@ -97,27 +77,18 @@ const Dashboard = () => {
         }
       );
 
-      if (res.status === 401) {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("adminToken");
-        window.location.href = "/admin/login";
-        return;
-      }
-
       setContacts((prev) =>
         prev.map((c) =>
           c._id === id ? { ...c, status: newStatus } : c
         )
       );
-    } catch (error) {
-      console.error("Status update error:", error);
+    } catch {
       alert("Failed to update status");
     }
   };
 
-  //----------------------
   /* ================= EDIT ================= */
-    const openEditModal = (contact) => {
+  const openEditModal = (contact) => {
     setEditingContact({ ...contact });
   };
 
@@ -142,7 +113,7 @@ const Dashboard = () => {
         }
       );
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Update failed");
 
       const updated = await res.json();
 
@@ -154,21 +125,17 @@ const Dashboard = () => {
 
       setEditingContact(null);
     } catch {
-      alert("Update failed");
+      alert("Failed to update message");
     }
   };
 
-  // ---------------------------
-  // Logout
-  // ---------------------------
+  /* ================= LOGOUT ================= */
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     window.location.href = "/admin/login";
   };
 
-  // ---------------------------
-  // Load on mount
-  // ---------------------------
+  /* ================= LOAD ================= */
   useEffect(() => {
     if (!token) {
       window.location.href = "/admin/login";
@@ -186,7 +153,7 @@ const Dashboard = () => {
         <button onClick={handleLogout}>Logout</button>
       </div>
 
-      {/* CARD */}
+      {/* TABLE */}
       <div className="admin-card">
         <h3>Contact Messages</h3>
 
@@ -217,7 +184,6 @@ const Dashboard = () => {
                   <td>{c.phone}</td>
                   <td>{c.service}</td>
                   <td className="message-cell">{c.message}</td>
-
                   <td>
                     <span
                       className={
@@ -229,11 +195,7 @@ const Dashboard = () => {
                       {c.status}
                     </span>
                   </td>
-
-                  <td>
-                    {new Date(c.createdAt).toLocaleDateString()}
-                  </td>
-
+                  <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>
                     <button
                       className="status-btn"
@@ -241,9 +203,14 @@ const Dashboard = () => {
                         updateStatus(c._id, c.status)
                       }
                     >
-                      {c.status === "Pending"
-                        ? "Mark Completed"
-                        : "Mark Pending"}
+                      Toggle
+                    </button>
+
+                    <button
+                      className="edit-btn"
+                      onClick={() => openEditModal(c)}
+                    >
+                      Edit
                     </button>
 
                     <button
@@ -259,48 +226,50 @@ const Dashboard = () => {
           </table>
         )}
       </div>
+
+      {/* ================= EDIT MODAL ================= */}
+      {editingContact && (
+        <div className="edit-modal">
+          <div className="edit-card">
+            <h3>Edit Message</h3>
+
+            <input
+              name="name"
+              value={editingContact.name}
+              onChange={handleEditChange}
+            />
+            <input
+              name="email"
+              value={editingContact.email}
+              onChange={handleEditChange}
+            />
+            <input
+              name="phone"
+              value={editingContact.phone}
+              onChange={handleEditChange}
+            />
+            <input
+              name="service"
+              value={editingContact.service}
+              onChange={handleEditChange}
+            />
+            <textarea
+              name="message"
+              value={editingContact.message}
+              onChange={handleEditChange}
+            />
+
+            <div className="edit-actions">
+              <button onClick={saveEdit}>Save</button>
+              <button onClick={() => setEditingContact(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-{editingContact && (
-  <div className="edit-modal">
-    <div className="edit-card">
-      <h3>Edit Message</h3>
-
-      <input
-        name="name"
-        value={editingContact.name}
-        onChange={handleEditChange}
-      />
-      <input
-        name="email"
-        value={editingContact.email}
-        onChange={handleEditChange}
-      />
-      <input
-        name="phone"
-        value={editingContact.phone}
-        onChange={handleEditChange}
-      />
-      <input
-        name="service"
-        value={editingContact.service}
-        onChange={handleEditChange}
-      />
-      <textarea
-        name="message"
-        value={editingContact.message}
-        onChange={handleEditChange}
-      />
-
-      <div className="edit-actions">
-        <button onClick={saveEdit}>Save</button>
-        <button onClick={() => setEditingContact(null)}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
 export default Dashboard;
