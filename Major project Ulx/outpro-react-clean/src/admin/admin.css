@@ -147,6 +147,22 @@
   background: #dc2626;
 }
 
+/* EDIT BUTTON */
+.edit-btn {
+  background-color: #f59e0b;   /* orange */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin: 4px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.edit-btn:hover {
+  background-color: #d97706;
+}
+
 /* ================= CARD CONTAINER ================= */
 
 .admin-card {
