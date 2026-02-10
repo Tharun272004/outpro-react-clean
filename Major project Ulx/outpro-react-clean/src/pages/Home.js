@@ -78,33 +78,48 @@ function Home() {
     };
 
     const sendMessage = async (e) => {
-        e.preventDefault(); // stop page reload
+    e.preventDefault();
 
-        // ✅ PHONE VALIDATION (INSIDE submit)
-        const phoneRegex = /^[6-9]\d{9}$/;
+    // ✅ Phone validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert("Please enter a valid 10-digit phone number");
+      return;
+    }
 
-        if (!phoneRegex.test(formData.phone)) {
-            alert("Please enter a valid 10-digit phone number");
-            return; // stop API call
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         }
+      );
 
-        try {
-            const response = await fetch(
-                "http://localhost:5000/api/contact/send-message",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData),
-                }
-            );
+        const result = await response.json();
 
-            const result = await response.json();
-            setResponseMessage(result.message);
-        } catch (error) {
-            setResponseMessage("Something went wrong!");
-        }
-    };
+      if (response.ok) {
+        setResponseMessage("Message sent successfully ✅");
 
+        // Clear form after success
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          service: "",
+          message: "",
+        });
+      } else {
+        setResponseMessage(result.message || "Failed to send message ❌");
+      }
+    } catch (error) {
+      console.error(error);
+      setResponseMessage("Something went wrong ❌");
+    }
+  };
 
     return (
         <>
