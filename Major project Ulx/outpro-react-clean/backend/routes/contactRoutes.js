@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Contact = require("../models/contact");
+const protectAdmin = require("../middleware/authMiddleware");
 
 /* ================= PUBLIC ================= */
 
@@ -70,8 +71,8 @@ router.post("/send-message", async (req, res) => {
 
 /* ================= ADMIN ================= */
 
-// GET: /api/contact (view all messages)
-router.get("/", async (req, res) => {
+// ADMIN: get all contacts
+router.get("/", protectAdmin, async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json(contacts);
@@ -83,8 +84,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// DELETE: /api/contact/:id (delete message)
-router.delete("/:id", async (req, res) => {
+// ADMIN: delete contact
+router.delete("/:id", protectAdmin, async (req, res) => {
   try {
     await Contact.findByIdAndDelete(req.params.id);
     res.json({
@@ -99,11 +100,10 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// PATCH: /api/contact/status/:id (update status)
-router.patch("/status/:id", async (req, res) => {
+// ADMIN: update status
+router.patch("/status/:id", protectAdmin, async (req, res) => {
   try {
     const { status } = req.body;
-
     await Contact.findByIdAndUpdate(req.params.id, { status });
 
     res.json({
