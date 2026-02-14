@@ -60,15 +60,16 @@ function Home() {
         }
     ];
 
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        phone: "",
-        service: "",
-        message: "",
-    });
+   const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  service: "",
+  message: "",
+});
 
-    const [responseMessage, setResponseMessage] = useState("");
+const [responseMessage, setResponseMessage] = useState("");
+const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -77,47 +78,54 @@ function Home() {
         });
     };
 
-    const sendMessage = async (e) => {
-    e.preventDefault();
+   const sendMessage = async (e) => {
+  e.preventDefault();
 
-    // ✅ Phone validation
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      alert("Please enter a valid 10-digit phone number");
-      return;
-    }
+  if (isSubmitting) return; // 🚫 Prevent double click
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/contact/send-message`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+  // Phone validation
+  const phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(formData.phone)) {
+    alert("Please enter a valid 10-digit phone number");
+    return;
+  }
 
-        const result = await response.json();
+  try {
+    setIsSubmitting(true);   // ⏳ Start loading
 
-      if (response.ok) {
-        setResponseMessage("Message sent successfully ✅");
-
-        // Clear form after success
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          service: "",
-          message: "",
-        });
-      } else {
-        setResponseMessage(result.message || "Failed to send message ❌");
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/contact/send-message`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       }
-    } catch (error) {
-      console.error(error);
-      setResponseMessage("Something went wrong ❌");
+    );
+
+    const result = await response.json();
+
+    if (response.ok) {
+      setResponseMessage("Message sent successfully ✅");
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        service: "",
+        message: "",
+      });
+    } else {
+      setResponseMessage(result.message || "Failed to send message ❌");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    setResponseMessage("Something went wrong ❌");
+  } finally {
+    setIsSubmitting(false);  // ✅ Stop loading
+  }
+};
 
     return (
         <>
@@ -318,8 +326,11 @@ function Home() {
                             required
                         ></textarea>
 
-                        <button type="submit">Send Message</button>
-                        <p>{responseMessage}</p>
+                       <button type="submit" disabled={isSubmitting}>
+  {isSubmitting ? "Submitting..." : "Send Message"}
+</button>
+
+<p>{responseMessage}</p>
 
                     </form>
                 </section>
