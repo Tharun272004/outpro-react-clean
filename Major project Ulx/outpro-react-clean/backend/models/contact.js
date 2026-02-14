@@ -34,6 +34,10 @@ const contactSchema = new mongoose.Schema(
     {
         timestamps: true
     }
+    // Prevent duplicate submissions
+contactSchema.index(
+  { name: 1, email: 1, phone: 1, service: 1 },
+  { unique: true }
 );
 
 module.exports = mongoose.model("Contact", contactSchema);
