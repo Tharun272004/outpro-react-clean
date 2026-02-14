@@ -63,10 +63,18 @@ router.post("/send-message", async (req, res) => {
     });
   } catch (error) {
     console.error("Contact save error:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+if (error.code === 11000) {
+  return res.status(409).json({
+    success: false,
+    message:
+      "Your request is already received. We will contact you soon.",
+  });
+}
+
+res.status(500).json({
+  success: false,
+  message: "Server error",
+});
   }
 });
 
